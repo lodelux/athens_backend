@@ -8,7 +8,7 @@ initializeApp();
 
 
 function getFoodReward(price: number, foodSales: number, totalSales: number) {
-    return (price / 10) * (totalSales / foodSales)
+    return (price / 10) * (totalSales / (foodSales + 1))
 }
 
 exports.buyFood = functions.https.onRequest(async (req, res) => {
@@ -26,6 +26,7 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
             const restaurant = (await restaurantRequest).data();
 
             console.log('DEBUG 2');
+        
 
             const reward = getFoodReward(food['price'], food['sales'], restaurant['total_sales']);
 
@@ -46,6 +47,7 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
 
             return 200;
         } catch(e) {
+            console.log(e);
             return 400;
         }
     });
