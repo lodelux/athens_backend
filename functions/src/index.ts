@@ -55,6 +55,10 @@ export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
         //    return trivia but without isCorrect and comment in answers, and adding doc id to trivia
         const triviaData = trivia.data();
 
+        
+        console.log('DEBUG 0');
+        console.log(triviaData);
+
         const result = {
             id: trivia.id,
             question: triviaData.question,
@@ -64,6 +68,10 @@ export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
             ),
             topicID: triviaData.topicID
         }
+
+        console.log('DEBUG 1');
+        console.log(result);
+
         res.json(result);
     } catch (e: any) {
         res.status(400).json(`Error: ${e.message}`);
