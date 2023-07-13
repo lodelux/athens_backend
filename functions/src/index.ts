@@ -1,7 +1,10 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore} = require('firebase-admin/firestore');
 
+initializeApp();
 
 
 function getFoodReward(price: number, foodSales: number, totalSales: number) {
