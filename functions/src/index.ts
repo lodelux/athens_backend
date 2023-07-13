@@ -26,7 +26,8 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
             const restaurant = (await restaurantRequest).data();
 
             console.log('DEBUG 2');
-        
+            console.log(food);
+            console.log(restaurant);
 
             const reward = getFoodReward(food['price'], food['sales'], restaurant['total_sales']);
 
