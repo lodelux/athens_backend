@@ -1,8 +1,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
-const { getFirestore} = require('firebase-admin/firestore');
+const { initializeApp } = require('firebase-admin/app');
 
 initializeApp();
 
@@ -17,6 +16,9 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
     const r = await firestoreInstance.runTransaction(async t => {
         console.log('DEBUG 0');
         try {
+
+            console.log(req.body);
+
             const foodRequest = t.get(firestoreInstance.collection('restaurants/' + req.body.restaurant_id + '/food').doc(req.body.food_id));
             const restaurantRequest = t.get(firestoreInstance.collection('restaurants').doc(req.body.restaurant_id));
 
