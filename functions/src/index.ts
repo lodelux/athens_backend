@@ -54,6 +54,12 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
     res.send({"response": "OK"});
 });
 
+export const onPointsUpdate = functions.firestore.document('users/{user}').onUpdate(async (change, context) => {
+    if (change.before.data()['points'] === change.after.data()['points']) {
+        return;
+    }
+    //TODO: Update levels
+});
 
 export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
     //return all trivias that are daily
