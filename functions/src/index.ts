@@ -14,28 +14,15 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
 
     const firestoreInstance = admin.firestore();
     const r = await firestoreInstance.runTransaction(async t => {
-        console.log('DEBUG 0');
+        
         try {
-
-            console.log(req.body);
-
             const foodRequest = t.get(firestoreInstance.collection('restaurants/' + req.body.restaurant_id + '/food').doc(req.body.food_id));
             const restaurantRequest = t.get(firestoreInstance.collection('restaurants').doc(req.body.restaurant_id));
-
-            console.log('DEBUG 1');
 
             const food = (await foodRequest).data();
             const restaurant = (await restaurantRequest).data();
 
-            console.log('DEBUG 2');
-            console.log(food);
-            console.log(restaurant);
-
             const reward = getFoodReward(food['price'], food['sales'], restaurant['total_sales']);
-
-            console.log('DEBUG 3');
-            console.log(food);
-            console.log(restaurant);
 
             await Promise.all([
                 t.update(firestoreInstance.collection('restaurants/' + req.body.restaurant_id + '/food').doc(req.body.food_id), {
@@ -46,8 +33,6 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
                     total_sales: restaurant['total_sales'] + 1
                 })]);
 
-            console.log('DEBUG 4');
-
             return 200;
         } catch(e) {
             console.log(e);
@@ -55,5 +40,5 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
         }
     });
 
-    res.sendStatus(r);
+    res.send({"response": "OK"});
 });
