@@ -10,11 +10,11 @@ function getFoodReward(price: number, foodSales: number, totalSales: number) {
     return (price / 10) * (totalSales / (foodSales + 1))
 }
 
-exports.buyFood = functions.https.onRequest(async (req, res) => {
+export const buyFood = functions.https.onRequest(async (req, res) => {
 
     const firestoreInstance = admin.firestore();
     const r = await firestoreInstance.runTransaction(async t => {
-        
+
         try {
             const foodRequest = t.get(firestoreInstance.collection('restaurants/' + req.body.restaurant_id + '/food').doc(req.body.food_id));
             const restaurantRequest = t.get(firestoreInstance.collection('restaurants').doc(req.body.restaurant_id));
@@ -39,6 +39,10 @@ exports.buyFood = functions.https.onRequest(async (req, res) => {
             return 400;
         }
     });
+
+    if (r != 200) {
+        res.sendStatus(r);
+    }
 
     res.send({"response": "OK"});
 });
