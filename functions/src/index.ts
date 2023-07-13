@@ -51,14 +51,14 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
 export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
     //return all trivias that are daily
     try {
-        const trivia = (await db.trivias.where('isDaily', '==', true).limit(1).get()).docs[0];
+        const trivia = (await admin.firestore().collection('trivias').where('isDaily', '==', true).get()).docs[0];
         //    return trivia but without isCorrect and comment in answers, and adding doc id to trivia
         const triviaData = trivia.data();
 
         const result = {
             id: trivia.id,
             question: triviaData.question,
-            answers: triviaData.answers.map((answer: Answer) => {
+            answers: triviaData.answers.map((answer) => {
                     return answer.text;
                 }
             ),
@@ -85,7 +85,7 @@ try {
 }
 
 try {
-    const trivia = (await db.trivias.doc(triviaId).get()).data();
+    const trivia = (await admin.firestore().collection('trivias').doc(triviaId).get()).data();
     if (!trivia) {
         res.status(400).json(`Error: Trivia not found`);
         return;
