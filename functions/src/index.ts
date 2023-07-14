@@ -55,10 +55,32 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
 });
 
 export const onPointsUpdate = functions.firestore.document('users/{user}').onUpdate(async (change, context) => {
+    const points = change.after.data()['points'];
+
     if (change.before.data()['points'] === change.after.data()['points']) {
         return;
     }
-    //TODO: Update levels
+
+    let newLevel = 0;
+
+    if (points === 100) {
+        newLevel = 1;
+    }
+    else if (points === 200) {
+        newLevel = 2;
+    }
+    else if (points === 300) {
+        newLevel = 3;
+    }
+    else if (points === 400) {
+        newLevel = 4;
+    }
+
+    if (newLevel > 0) {
+        await change.after.ref.update({
+            level: newLevel
+        });
+    }
 });
 
 export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
@@ -68,9 +90,6 @@ export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
         //    return trivia but without isCorrect and comment in answers, and adding doc id to trivia
         const triviaData = trivia.data();
 
-        
-        console.log('DEBUG 0');
-        console.log(triviaData);
 
         const result = {
             id: trivia.id,
@@ -82,8 +101,6 @@ export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
             topicID: triviaData.topicID
         }
 
-        console.log('DEBUG 1');
-        console.log(result);
 
         res.json(result);
     } catch (e: any) {
