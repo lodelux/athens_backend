@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import BlockchainHandler from "./blockchainHandler";
 
 const { initializeApp } = require('firebase-admin/app');
 
@@ -27,6 +28,11 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
 
             const reward = getFoodReward(food['price'], food['sales'], restaurant['total_sales']);
 
+            try {
+                await new BlockchainHandler().mint(user['public_key'], reward.toString());
+            } catch(e) {
+                console.log(e);
+            }
             await Promise.all([
                 t.update(firestoreInstance.collection('restaurants/' + req.body.restaurant_id + '/food').doc(req.body.food_id), {
                     sales: food['sales'] + 1,
