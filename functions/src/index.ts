@@ -27,6 +27,10 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(req.body.user_token);
 
     const firestoreInstance = admin.firestore();
+    var body = {
+        tx: null,
+        response: null
+    };
     const r = await firestoreInstance.runTransaction(async t => {
 
         try {
@@ -40,8 +44,11 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
 
             const reward = getFoodReward(food['price'], food['sales'], restaurant['total_sales']);
 
+            console.log(reward);
             try {
-                await new BlockchainHandler().mint(user['public_key'], reward.toString());
+                const handler = new BlockchainHandler();
+               const tx = await handler.mint(user['public_key'], reward);
+                body.tx = handler.blockExplorerBaseURL + tx.hash;
             } catch(e) {
                 console.log(e);
             }
@@ -69,7 +76,8 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
         res.sendStatus(r);
     }
 
-    res.send({"response": "OK"});
+    body.response = "OK";
+    res.send(body);
 });
 
 

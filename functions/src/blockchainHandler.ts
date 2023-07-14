@@ -7,6 +7,7 @@ export default class BlockchainHandler {
     public provider: ethers.JsonRpcProvider;
     public admin_signer: ethers.Wallet
     public WWT
+    public blockExplorerBaseURL = "https://sepolia.etherscan.io/tx/";
 
     constructor() {
         dotenv.config();
@@ -19,7 +20,9 @@ export default class BlockchainHandler {
         return await this.WWT.balanceOf(address);
     }
 
-    public async mint(address: string, amount: string): Promise<void> {
-        await this.WWT.mint(address, amount);
+    public async mint(address: string, amount) {
+
+        //parse from number to ether format
+        return this.WWT.mint(address, ethers.parseEther(amount.toString()));
     }
 }
