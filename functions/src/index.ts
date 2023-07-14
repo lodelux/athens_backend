@@ -9,12 +9,12 @@ initializeApp();
 
 
 function getFoodReward(price: number, foodSales: number, totalSales: number) {
-    const reward = (price * 100) * (totalSales / (foodSales + 1))
+    const reward = (price) * (totalSales / (foodSales + 1))
 
-    const difference = reward - price * 100;
+    const difference = reward - price;
 
     if (difference > 200) {
-        return price * 100 + 200;
+        return price + 200;
     }
     return reward;
 }
@@ -178,13 +178,9 @@ export const submitTriviaAnswer = functions.https.onRequest(async (req, res) => 
                 });
             }
 
-            console.log('DEBUG 0');
-
             writeBatch.update(trivia.ref, {
                 correct_answers: FieldValue.increment(1)
             });
-
-            console.log('DEBUG 1');
 
             writeBatch.commit();
         }
