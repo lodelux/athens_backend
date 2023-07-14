@@ -9,7 +9,14 @@ initializeApp();
 
 
 function getFoodReward(price: number, foodSales: number, totalSales: number) {
-    return (price / 10) * (totalSales / (foodSales + 1))
+    const reward = (price * 100) * (totalSales / (foodSales + 1))
+
+    const difference = reward - price * 100;
+
+    if (difference > 200) {
+        return price * 100 + 200;
+    }
+    return reward;
 }
 
 function getPointsReward(price: number, foodSales: number, totalSales: number) {
@@ -84,17 +91,23 @@ export const onPointsUpdate = functions.firestore.document('users/{user}').onUpd
 
     let newLevel = 0;
 
-    if (points === 100) {
-        newLevel = 1;
+    if (points >= 600) {
+        newLevel = 6;
     }
-    else if (points === 200) {
-        newLevel = 2;
+    else if (points >= 500) {
+        newLevel = 5;
     }
-    else if (points === 300) {
+    else if (points >= 400) {
+        newLevel = 4;
+    }
+    else if (points >= 300) {
         newLevel = 3;
     }
-    else if (points === 400) {
-        newLevel = 4;
+    else if (points >= 200) {
+        newLevel = 2;
+    }
+    else if (points >= 100) {
+        newLevel = 1;
     }
 
     if (newLevel > 0) {
