@@ -170,9 +170,13 @@ export const submitTriviaAnswer = functions.https.onRequest(async (req, res) => 
                 });
             }
 
+            console.log('DEBUG 0');
+
             writeBatch.update(trivia.ref, {
                 correct_answers: FieldValue.increment(1)
             });
+
+            console.log('DEBUG 1');
 
             writeBatch.commit();
         }
