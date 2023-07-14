@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 const { initializeApp } = require('firebase-admin/app');
 
@@ -111,38 +112,55 @@ export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
 
 export const submitTriviaAnswer = functions.https.onRequest(async (req, res) => {
 //    received data is {triviaId: string, answerIndex: int}
+    const decodedToken = await admin.auth().verifyIdToken(req.body.user_token);
+    const firestoreInstance = admin.firestore();
 
-let triviaId: string;
-let answerIndex: number;
-try {
-    triviaId = req.body.triviaId;
-    answerIndex = req.body.answerIndex;
-} catch (e: any) {
-    res.status(400).json(`Error: invalid request`);
-    return;
-}
-
-try {
-    const trivia = (await admin.firestore().collection('trivias').doc(triviaId).get()).data();
-    if (!trivia) {
-        res.status(400).json(`Error: Trivia not found`);
+    let triviaId: string;
+    let answerIndex: number;
+    try {
+        triviaId = req.body.triviaId;
+        answerIndex = req.body.answerIndex;
+    } catch (e: any) {
+        res.status(400).json(`Error: invalid request`);
         return;
     }
 
-    if (trivia.answers[answerIndex].isCorrect) {
-        //    TODO: add points to user
-    }
-
-    const correctAnswerIndex = trivia.answers.findIndex((answer: any) => answer.isCorrect);
-    res.json(
-        {
-            correctAnswerIndex: correctAnswerIndex,
-            comment: trivia.answers[correctAnswerIndex].comment
+    try {
+        const trivia = await firestoreInstance.collection('trivias').doc(triviaId).get();
+        const triviaData = trivia.data();
+        if (!trivia.exists) {
+            res.status(400).json(`Error: Trivia not found`);
+            return;
         }
-    );
-} catch (e: any) {
-    res.status(400).json(`Error: ${e.message}`);
-}
+
+        if (triviaData.answers[answerIndex].isCorrect) {
+            const writeBatch = firestoreInstance.batch();
+
+            let addedPoints = 10 - triviaData['correct_answers'];
+
+            if (addedPoints > 0) {
+                writeBatch.update(firestoreInstance.collection('users').doc(decodedToken.uid), {
+                    points: FieldValue.increment(addedPoints)
+                });
+            }
+
+            writeBatch.update(trivia.ref, {
+                correct_answers: FieldValue.increment(1)
+            });
+
+            writeBatch.commit();
+        }
+
+        const correctAnswerIndex = triviaData.answers.findIndex((answer: any) => answer.isCorrect);
+        res.json(
+            {
+                correctAnswerIndex: correctAnswerIndex,
+                comment: triviaData.answers[correctAnswerIndex].comment
+            }
+        );
+    } catch (e: any) {
+        res.status(400).json(`Error: ${e.message}`);
+    }
 });
 
 
