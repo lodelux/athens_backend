@@ -43,7 +43,7 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
                     total_sales: restaurant['total_sales'] + 1
                 }),
                 t.update(firestoreInstance.collection('users').doc(decodedToken.uid), {
-                    points: user['points'] + 1
+                    points: user['points'] + Math.round(reward)
                 })
             ]);
 
@@ -85,7 +85,7 @@ export const onPointsUpdate = functions.firestore.document('users/{user}').onUpd
 
     if (newLevel > 0) {
         await change.after.ref.update({
-            level: newLevel
+            level: newLevel,
         });
     }
 });
