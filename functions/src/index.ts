@@ -9,7 +9,7 @@ initializeApp();
 
 
 function getFoodReward(price: number, foodSales: number, totalSales: number) {
-    const reward = (price) * (totalSales / (foodSales + 1))
+    const reward = (price / 10) * (totalSales / (foodSales + 1))
 
     const difference = reward - price;
 
