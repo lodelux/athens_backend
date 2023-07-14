@@ -4,7 +4,8 @@ import BlockchainHandler from "../blockchainHandler";
 const main = async () => {
     const handler = new BlockchainHandler();
     console.log(await handler.getBalance(await  handler.admin_signer.getAddress()));
-    await handler.mint(await handler.admin_signer.getAddress(), '10000');
+    const tx = await handler.mint(await handler.admin_signer.getAddress(), '1');
+    console.log(tx.hash);
     console.log(await handler.getBalance(await  handler.admin_signer.getAddress()));
 }
 
