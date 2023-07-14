@@ -83,7 +83,13 @@ export const onPointsUpdate = functions.firestore.document('users/{user}').onUpd
 
     let newLevel = 0;
 
-    if (points >= 400) {
+    if (points >= 600) {
+        newLevel = 6;
+    }
+    else if (points >= 500) {
+        newLevel = 5;
+    }
+    else if (points >= 400) {
         newLevel = 4;
     }
     else if (points >= 300) {
