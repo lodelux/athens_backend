@@ -12,6 +12,10 @@ function getFoodReward(price: number, foodSales: number, totalSales: number) {
     return (price / 10) * (totalSales / (foodSales + 1))
 }
 
+function getPointsReward(price: number, foodSales: number, totalSales: number) {
+    return Math.round((price / 10) * (totalSales / (foodSales + 1)))
+}
+
 export const buyFood = functions.https.onRequest(async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(req.body.user_token);
 
@@ -43,7 +47,7 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
                     total_sales: restaurant['total_sales'] + 1
                 }),
                 t.update(firestoreInstance.collection('users').doc(decodedToken.uid), {
-                    points: user['points'] + Math.round(reward)
+                    points: user['points'] + getPointsReward(food['price'], food['sales'], restaurant['total_sales'])
                 })
             ]);
 
@@ -60,6 +64,8 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
 
     res.send({"response": "OK"});
 });
+
+
 
 export const onPointsUpdate = functions.firestore.document('users/{user}').onUpdate(async (change, context) => {
     const points = change.after.data()['points'];
@@ -105,7 +111,8 @@ export const getDailyTrivia = functions.https.onRequest(async (req, res) => {
                     return answer.text;
                 }
             ),
-            topicID: triviaData.topicID
+            topicID: triviaData.topicID,
+            correct_answers: triviaData.correct_answers
         }
 
 
