@@ -29,8 +29,12 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
     const firestoreInstance = admin.firestore();
     var body = {
         tx: null,
-        response: null
+        response: null,
+        earned: 0
     };
+
+    let earnedPoints;
+
     const r = await firestoreInstance.runTransaction(async t => {
 
         try {
@@ -52,6 +56,9 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
             } catch(e) {
                 console.log(e);
             }
+
+            earnedPoints = user['points'] + getPointsReward(food['price'], food['sales'], restaurant['total_sales']);
+
             await Promise.all([
                 t.update(firestoreInstance.collection('restaurants/' + req.body.restaurant_id + '/food').doc(req.body.food_id), {
                     sales: food['sales'] + 1,
@@ -61,7 +68,7 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
                     total_sales: restaurant['total_sales'] + 1
                 }),
                 t.update(firestoreInstance.collection('users').doc(decodedToken.uid), {
-                    points: user['points'] + getPointsReward(food['price'], food['sales'], restaurant['total_sales'])
+                    points: earnedPoints
                 })
             ]);
 
@@ -76,6 +83,7 @@ export const buyFood = functions.https.onRequest(async (req, res) => {
         res.sendStatus(r);
     }
 
+    body.earned = earnedPoints;
     body.response = "OK";
     res.send(body);
 });
