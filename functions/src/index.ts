@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import BlockchainHandler from "./blockchainHandler";
+import { FieldValue } from "firebase-admin/firestore";
 
 const { initializeApp } = require('firebase-admin/app');
 
